@@ -1,154 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Totalphonebill Price Plans</title>
-    <script src="./express.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <title>Phone Bill Price Plans</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.3/dist/cdn.min.js" defer></script>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <div x-data="priceplansWidget">
-        <div class="container">
-            <h1>Totalphonebill Price Plans</h1>
-            <br>
-            <section>
-                <div x-data>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col"><b>Plan Name</b></th>
-                                <th scope="col"><b>SMS Price</b></th>
-                                <th scope="col"><b>Call Price</b></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="plan in pricePlans">
-                                <tr>
-                                    <td x-text="plan.plan_name"></td>
-                                    <td x-text="plan.sms_price"></td>
-                                    <td x-text="plan.call_price"></td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+    <div class="container" x-data="pricePlanApp()">
+
+        <!-- Create Price Plan Section -->
+        <div class="section">
+            <h2>Create Price Plan</h2>
+            <input x-model="newPlanName" placeholder="Plan Name" type="text" />
+            <input x-model="newSmsPrice" placeholder="SMS Price" type="number" />
+            <input x-model="newCallPrice" placeholder="Call Price" type="number" />
+            <button @click="createPricePlan()">Create Plan</button>
+            <p x-text="createPlanMessage"></p>
         </div>
 
-        <section>
-            <div class="container p-4" x-data="phoneBillWidget()">
-                <h3 class="mb-3">Calculate Total Phone Bill</h3>
-                <form x-on:submit.prevent="phoneBill">
-                    <div class="mb-3">
-                        <label for="selectedName">Plan Name:</label>
-                        <input x-model="selectedName" type="text" id="selectedName" name="selectedName"
-                            class="form-control" placeholder="Enter an existing plan name">
-                    </div>
+        <!-- Update Price Plan Section -->
+        <div class="section">
+            <h2>Update Price Plan</h2>
+            <input x-model="updatePlanName" placeholder="Plan Name" type="text" />
+            <input x-model="updateSmsPrice" placeholder="New SMS Price" type="number" />
+            <input x-model="updateCallPrice" placeholder="New Call Price" type="number" />
+            <button @click="updatePricePlan()">Update Plan</button>
+            <p x-text="updatePlanMessage"></p>
+        </div>
 
-                    <div class="mb-3">
-                        <label for="actions">Actions:</label>
-                        <input x-model="actions" type="text" id="actions" name="actions" class="form-control"
-                            placeholder="Enter comma separated string (e.g., call,sms,call,sms)">
-                    </div>
+        <!-- Delete Price Plan Section -->
+        <div class="section">
+            <h2>Delete Price Plan</h2>
+            <input x-model="deletePlanName" placeholder="Plan Name" type="text" />
+            <button @click="deletePricePlan()">Delete Plan</button>
+            <p x-text="deletePlanMessage"></p>
+        </div>
 
-                    <div class="mb-3">
-                        <button class="btn btn-success">Total</button>
-                    </div>
-                </form>
+        <!-- Calculate Phone Bill Section -->
+        <div class="section">
+            <h2>Calculate Phone Bill</h2>
+            <input x-model="phoneBillPlanName" placeholder="Plan Name" type="text" />
+            <input x-model="phoneBillActions" placeholder="Actions (e.g., sms,call)" type="text" />
+            <button @click="calculatePhoneBill()">Calculate Bill</button>
+            <p x-text="phoneBillMessage"></p>
+        </div>
 
-                <div>
-                    <label>Bill: R <span x-text="total"></span></label>
-                </div>
-            </div>
-        </section>
+        <!-- View All Price Plans Section -->
+        <div class="section">
+            <h2>All Price Plans</h2>
+            <button @click="fetchPricePlans()">View All Plans</button>
+            <ul>
+                <template x-for="plan in pricePlans" :key="plan.id">
+                    <li>
+                        <strong x-text="plan.plan_name"></strong> - SMS: R<span x-text="plan.sms_price"></span>, Call: R<span x-text="plan.call_price"></span>
+                    </li>
+                </template>
+            </ul>
+        </div>
 
-        <section>
-            <div class="container p-4">
-                <h3 class="mb-3">Create Phone Bill Plan</h3>
-
-                <div class="input mb-3">
-                    <label for="new_plan_name">Enter plan name:</label>
-                    <input type="text" class="form-control" placeholder="plan name" x-model="new_plan_name"
-                        id="new_plan_name">
-                </div>
-
-                <div class="input mb-3">
-                    <label for="new_sms_price">Enter sms price:</label>
-                    <input type="text" class="form-control" placeholder="0.00" x-model="new_sms_price"
-                        id="new_sms_price">
-                </div>
-
-                <div class="input mb-3">
-                    <label for="new_call_price">Enter call price:</label>
-                    <input type="text" class="form-control" placeholder="0.00" x-model="new_call_price"
-                        id="new_call_price">
-                </div>
-
-                <div class="cont"><button class="btn btn-success" x-on:click="createPlan()">Create Plan</button>
-                </div>
-            </div>
-
-            <div class="container p-4">
-                <h3 class="mb-3">Update Phone Bill Plan</h3>
-
-                <div class="input mb-3">
-                    <label for="updatePlanName">Enter plan name:</label>
-                    <input type="text" class="form-control" placeholder="plan name" x-model="updatePlanName"
-                        id="updatePlanName">
-                </div>
-
-                <div class="input mb-3">
-                    <label for="updateSMSPrice">Enter sms price:</label>
-                    <input type="text" class="form-control" placeholder="0.00" x-model="updateSMSPrice"
-                        id="updateSMSPrice">
-                </div>
-
-                <div class="input mb-3">
-                    <label for="updateCallPrice">Enter call price:</label>
-                    <input type="text" class="form-control" placeholder="0.00" x-model="updateCallPrice"
-                        id="updateCallPrice">
-                </div>
-
-                <div class="cont"><button class="btn btn-success" x-on:click="updatePlan()">Update Plan</button>
-                </div>
-            </div>
-
-            <div class="container">
-                <h3 class="mb-3">Delete Phone Bill Plan</h3>
-
-                <div class="input mb-3">
-                    <label for="deletePlanName">Enter the plan name:</label>
-                    <input type="text" class="form-control" placeholder="plan name" x-model="deletePlanName"
-                        id="deletePlanName">
-                </div>
-
-                <div class="cont"><button class="btn btn-success" x-on:click="deletePlan()">Delete Plan</button>
-                </div>
-            </div>
-        </section>
-
-        <section>
-            <footer class="text-center bg-dark text-light py-3">
-                <div class="footer">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Contact Us</h4>
-                            <p>1746 Street, Pimville</p>
-                            <p>Email: info@totalphonebill.com</p>
-                            <p>Phone: (079)-949-6503</p>
-                        </div>
-                    </div>
-                </div>
-                <p class="mt-3">&copy; MntimandeConsultingServices🐊 2024. All rights reserved.</p>
-            </footer>
-        </section>
     </div>
-</body>
 
+    <script>
+        function pricePlanApp() {
+            return {
+                // Data properties
+                newPlanName: '',
+                newSmsPrice: '',
+                newCallPrice: '',
+                updatePlanName: '',
+                updateSmsPrice: '',
+                updateCallPrice: '',
+                deletePlanName: '',
+                phoneBillPlanName: '',
+                phoneBillActions: '',
+                createPlanMessage: '',
+                updatePlanMessage: '',
+                deletePlanMessage: '',
+                phoneBillMessage: '',
+                pricePlans: [],
+
+                // Methods
+                async createPricePlan() {
+                    const response = await fetch('/api/price_plan/create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            plan_name: this.newPlanName,
+                            sms_price: this.newSmsPrice,
+                            call_price: this.newCallPrice
+                        })
+                    });
+                    const data = await response.json();
+                    this.createPlanMessage = data.status || data.error;
+                    this.newPlanName = '';
+                    this.newSmsPrice = '';
+                    this.newCallPrice = '';
+                    this.fetchPricePlans();
+                },
+
+                async updatePricePlan() {
+                    const response = await fetch('/api/price_plan_update', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            plan_name: this.updatePlanName,
+                            sms_price: this.updateSmsPrice,
+                            call_price: this.updateCallPrice
+                        })
+                    });
+                    const data = await response.json();
+                    this.updatePlanMessage = data.status || data.error;
+                    this.updatePlanName = '';
+                    this.updateSmsPrice = '';
+                    this.updateCallPrice = '';
+                    this.fetchPricePlans();
+                },
+
+                async deletePricePlan() {
+                    const response = await fetch('/api/price_plan/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            plan_name: this.deletePlanName
+                        })
+                    });
+                    const data = await response.json();
+                    this.deletePlanMessage = data.status || data.error;
+                    this.deletePlanName = '';
+                    this.fetchPricePlans();
+                },
+
+                async calculatePhoneBill() {
+                    const response = await fetch('/api/phonebill', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            price_plan: this.phoneBillPlanName,
+                            actions: this.phoneBillActions
+                        })
+                    });
+                    const data = await response.json();
+                    this.phoneBillMessage = data.total || data.error;
+                    this.phoneBillPlanName = '';
+                    this.phoneBillActions = '';
+                },
+
+                async fetchPricePlans() {
+                    const response = await fetch('/api/price_plan');
+                    const data = await response.json();
+                    this.pricePlans = data.price_plans;
+                }
+            };
+        }
+    </script>
+</body>
 </html>
+

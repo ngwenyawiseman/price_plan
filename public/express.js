@@ -22,9 +22,11 @@ document.addEventListener('alpine:init', () => {
                 this.fetchPricePlans();
             },
 
-            fetchPricePlans() {
-                axios.get('/api/price_plan')
+           async fetchPricePlans() {
+               await axios.get('http://localhost:4011/api/price_plan')
                     .then((result) => {
+                        console.log(result.data);
+                        
                         this.pricePlans = result.data.price_plans;
                     })
                     .catch((err) => {
@@ -38,7 +40,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                axios.post('/api/price_plan/phonebill', {
+                axios.post('http://localhost:4011/api/phonebill', {
                     price_plan: this.selectedName,
                     actions: this.actions
                 })
@@ -58,13 +60,15 @@ document.addEventListener('alpine:init', () => {
                 }, 3000);
             },
 
-            createPlan() {
-                axios.post("/api/price_plan/create", {
+           async createPlan() {
+               await axios.post("http://localhost:4011/api/price_plan/create", {
                     plan_name: this.new_plan_name.toLowerCase(),
                     sms_price: parseFloat(this.new_sms_price).toFixed(2),
                     call_price: parseFloat(this.new_call_price).toFixed(2)
                 })
                     .then(result => {
+                        console.log(result.data);
+                        
                         if (result.data.error) {
                             alert(result.data.error);
                         } else {
@@ -77,8 +81,8 @@ document.addEventListener('alpine:init', () => {
                     });
             },
 
-            updatePlan() {
-                axios.post("/api/price_plan_update", {
+           async updatePlan() {
+               await axios.post("/api/price_plan_update", {
                     plan_name: this.updatePlanName.toLowerCase(),
                     sms_price: parseFloat(this.updateSMSPrice).toFixed(2),
                     call_price: parseFloat(this.updateCallPrice).toFixed(2)
@@ -96,8 +100,8 @@ document.addEventListener('alpine:init', () => {
                     });
             },
 
-            deletePlan() {
-                axios.post("/api/price_plan/delete", {
+           async deletePlan() {
+               await axios.post("/api/price_plan/delete", {
                     plan_name: this.deletePlanName.toLowerCase()
                 })
                     .then(result => {
