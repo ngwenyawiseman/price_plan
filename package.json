@@ -25,13 +25,18 @@
   "contributors": [],
   "scripts": {
     "dev": "",
-    "test": "",
+    "test": "mocha test.js",
     "start": "node index.js"
   },
   "dependencies": {
+    "chai": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "jsdom-global": "^3.0.2",
+    "mocha": "^10.7.3",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.1.4",
+    "sinon": "^18.0.0",
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.6"
   }
