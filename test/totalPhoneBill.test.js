@@ -1,6 +1,6 @@
-// test.js
+// test/totalPhoneBill.test.js
 import { expect } from 'chai';
-import { totalPhoneBill } from './totalPhoneBill.js'; // Adjust the path accordingly
+import { totalPhoneBill } from '../totalPhoneBill.js'; 
 
 describe('totalPhoneBill', function() {
     it('should calculate the total bill for a single call', function() {
